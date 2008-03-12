@@ -4,6 +4,8 @@ var ABROADWidget = {
 	results : false,
 	templates : {},
 	elements : {},
+	update : null,
+	version : "1.0.1",
 	init : function() {
 		var gv = function(i) { return ABROADWidget.pref.get(i); }
 		var pd = {};
@@ -74,7 +76,34 @@ var ABROADWidget = {
 		this.templates.cassette = $("#cassette-template").html().replace(/\t|\n/g,"");
 		$("#cassette-template").remove();
 		$("div#page-navi").empty();
-		this.setStatus("search");
+		if(this.checkUpdate()) return this.confirmUpdate();
+		else return this.setStatus("search");
+	},
+	checkUpdate : function() {
+		var cversion = this.version.split(".").join("");
+		if(cversion.length<=2) cversion = cversion+"0";
+		cversion = parseInt(cversion);
+		var uversion = this.update&&this.update.version?this.update.version.split(".").join(""):"";
+		if(uversion.length<=2) uversion = uversion+"0";
+		uversion = parseInt(uversion);
+		return uversion>cversion;
+	},
+	confirmUpdate : function(){
+		this.confirm(getLocalizedString("confirm_update"),function(){
+			ABROADWidget.getURL(ABROADWidget.update.download);
+			ABROADWidget.setStatus("search");
+		});
+	},
+	confirm : function(msg,callback_yes,callback_no) {
+		callback_yes = callback_yes ? callback_yes : function() { return false; }
+		callback_no = callback_no ? callback_no : function() { ABROADWidget.setStatus("search"); return false; }
+		$("#confirm ul.buttons li a").unbind("click");
+		$("#confirm ul.buttons li.yes a").click(callback_yes);
+		$("#confirm ul.buttons li.no a").click(callback_no);
+		msg = msg ? msg : "";
+		$("div#error p.message").html("<em>"+msg+"<\/em>");
+		this.setStatus("confirm");
+		return false;
 	},
 	error : function(msg) {
 		msg = msg ?msg: getLocalizedString("error_unknown");
@@ -100,7 +129,7 @@ var ABROADWidget = {
 			i = this._status;
 		}
 		if(window.widget&&reverse) widget.prepareForTransition(reverse);
-		$.each(["complete","error","loading","search","back"],function(){
+		$.each(["complete","confirm","error","loading","search","back"],function(){
 			if(this!=i) $("body").removeClass(this);
 			else {
 				$("body").addClass(this);
@@ -110,6 +139,7 @@ var ABROADWidget = {
 		switch(i) {
 			case "loading":
 			case "error":
+			case "confirm":
 				$("div#"+i).css("opacity","0.0");
 				$("div#"+i).animate({opacity:1},"fast");
 				$("p#info-button").addClass("hidden");
@@ -160,6 +190,8 @@ var ABROADWidget = {
 		if(!tours||!tours.length) return this.error(getLocalizedString("error_noresult"));
 		var ht = "";
 		var tmpl = this.templates.cassette;
+		var d_month = $("div#search select[@name='ym']").val()
+		d_month = d_month&&d_month.length==6?parseInt(d_month.substr(-2)):"";
 		function fmturi(s,d) {
 			var q = s.split("?").pop().split("&"), p = "", o = {};
 			$.each(q,function(){
@@ -167,13 +199,17 @@ var ABROADWidget = {
 				o[a[0]] = a[1];
 				if(!a[0].match(/tourcode|vos|site_code|root_type/))	p+=a[0]+"-"+a[1]+"\/";
 			});
+			if(!o.d_month&&d_month) p += "d_month-"+d_month+"\/";
 			switch(d) {
 				case "NRT": case "HND": case "TYO": d = "TYO"; break;
 				case "OSA": case "ITM": case "KIX": d = "OSA"; break;
 				case "NGO": d = "NGO"; break;
 				default : d = "999"; break;
 			}
-			return "http:\/\/www.ab-road.net\/tour\/detail\/"+d+"\/"+o.tourcode+"\/s01rWG\/"+p;
+			var u = "http:\/\/www.ab-road.net\/tour\/detail\/"+d+"\/"+o.tourcode+"\/s01rWG\/"+p+"?vos=nabrvccp07110201";
+			u = encodeURIComponent(u);
+			u = "http://ck.jp.ap.valuecommerce.com/servlet/referral?sid=2462325&pid=876781123&vc_url="+u;
+			return u;
 		}
 		function fmtnum(x) {
 			var s = "" + x;
@@ -201,6 +237,7 @@ var ABROADWidget = {
 			t = t.replace(/#cassette-template/,l);
 			var cas = $(t);
 			if(this.price.min==this.price.max) $("p.price span.min,p.price span.glue",cas).remove();
+			$("a",cas).append("<img src=\"http:\/\/ad.jp.ap.valuecommerce.com\/servlet\/gifbanner?sid=2462325&pid=876781123\" class=\"beacon\" \/>")
 			cassettes.append(cas);
 		});
 		cassettes.append("<div class=\"dummy\"><\/div>");
