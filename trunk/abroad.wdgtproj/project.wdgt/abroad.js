@@ -116,11 +116,11 @@ var ABROADWidget = {
 	search : function(start) {
 		start = start ? start : 1;
 		var url = "http:\/\/webservice.recruit.co.jp\/ab-road\/tour\/v1\/?" + 
-		"key=" + Recruit.UI.key + "&format=jsonp&callback=ABROADWidget.onLoadResults&" +
+		"key=" + Recruit.UI.key + "&format=jsonp&callback=?&" +
 		"start=" + start + "&" + $( 'form#search-form' ).formSerialize()+
 		"&rnd="+Math.ceil(Math.random()*10000000).toString();
 		delete this.results;
-		ScriptRunner([{"ABROADWidget.results":url}]);
+		$.getJSON(url,function(d){ ABROADWidget.onLoadResults(d); })
 		this.setStatus("loading");
 	},
 	setStatus : function(i) {
