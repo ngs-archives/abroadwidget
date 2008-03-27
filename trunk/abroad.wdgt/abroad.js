@@ -5,7 +5,7 @@ var ABROADWidget = {
 	templates : {},
 	elements : {},
 	update : null,
-	version : "1.0.2",
+	version : "1.0.3",
 	init : function() {
 		var gv = function(i) { return ABROADWidget.pref.get(i); }
 		var pd = {};
