@@ -44,8 +44,14 @@ var ABROADWidget = {
 		});
 		$("a[@rel='submit']").click(function(){ $("form#"+$(this).attr("href").split("#").pop()).trigger("submit"); return false; });
 		$("a[@rel='reset']").click(function(){
-			$("form#"+$(this).attr("href").split("#").pop()).each(function(){ this.reset(); }); return false;
-			ABROADWidget.pref.remember();
+			var fm = $("form#"+$(this).attr("href").split("#").pop());
+			fm.each(function(){ this.reset(); });
+			$("select",fm).val("");
+			setTimeout(function(){
+				$("select",fm).trigger("change");
+				ABROADWidget.pref.remember();
+			},99);
+			return false;
 		});
 		$("a[@rel='external']").click(function(){ return ABROADWidget.getURL($(this).attr("href")); });
 		$("a[@rel='set-status']").click(function(){ ABROADWidget.setStatus($(this).attr("href").split("#").pop()); return false; });
