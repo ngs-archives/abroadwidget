@@ -23,11 +23,17 @@ var ABROADWidget = {
 		});
 		$("a[@href='http://www.ab-road.net/']").append(this.getBeacon());
 		$("a[@href='http://www.ab-road.net/']").attr("href",this.vcURL("http:\/\/www.ab-road.net\/"));
+		var ou = function() {
+			$("#ab-area-sel,#ab-country-sel,#ab-city-sel").each(function(){
+				this.disabled = this.options.length<=1;
+			});
+		}
 		pd.places = new ABROAD.UI.Places.Pulldown({
-			area : { val:gv("area"), first_opt_text:getLocalizedString("select_area") },
-			country : { val:gv("country"), first_opt_text:getLocalizedString("select_country") },
-			city : { val:gv("city"), first_opt_text:getLocalizedString("select_city") }
+			area : { val:gv("area"), first_opt_text:getLocalizedString("select_area"), on_update_hook:ou },
+			country : { val:gv("country"), first_opt_text:getLocalizedString("select_country"), on_update_hook:ou },
+			city : { val:gv("city"), first_opt_text:getLocalizedString("select_city"), on_update_hook:ou }
 		});
+		$("#ab-area-sel,#ab-country-sel,#ab-city-sel").change(ou);
 		this.elements.pulldown = pd;
 		$("form#search-form input").each(function(){
 			$(this).val(ABROADWidget.pref.get($(this).attr("name")));
@@ -286,6 +292,6 @@ var ABROADWidget = {
 	}
 }
 
-$(document).ready(function(){
+$(function(){
 	ABROADWidget.init();
 });
