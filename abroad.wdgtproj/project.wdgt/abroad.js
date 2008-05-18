@@ -56,7 +56,11 @@ var ABROADWidget = {
 		$("a[@rel='external']").click(function(){ return ABROADWidget.getURL($(this).attr("href")); });
 		$("a[@rel='set-status']").click(function(){ ABROADWidget.setStatus($(this).attr("href").split("#").pop()); return false; });
 		$("input[@type='text']").click(function(){ this.select(); })
-		$("form#search-form").submit(function(){ ABROADWidget.search(); return false; });
+		$("form#search-form").submit(function(){
+			if(ABROADWidget._status=="search") ABROADWidget.search();
+			else ABROADWidget.setStatus("search");
+			return false;
+		});
 		$("div#error").click(function(){ ABROADWidget.setStatus("search"); });
 		if(window.widget) {
 			this.elements.scrollarea = CreateScrollArea("results", {
