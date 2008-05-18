@@ -57,6 +57,7 @@ var ABROADWidget = {
 		$("a[@rel='set-status']").click(function(){ ABROADWidget.setStatus($(this).attr("href").split("#").pop()); return false; });
 		$("input[@type='text']").click(function(){ this.select(); })
 		$("form#search-form").submit(function(){
+			$("form#search-form input[@type='text']").blur();
 			if(ABROADWidget._status=="search") ABROADWidget.search();
 			else ABROADWidget.setStatus("search");
 			return false;
